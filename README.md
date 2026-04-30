@@ -26,25 +26,25 @@ Se utilizó el dataset **IEEE-CIS Fraud Detection** publicado por Vesta Corporat
 
 La variable objetivo es `isFraud` (binaria). El dataset original presenta un desbalance severo: solo el **3.50%** de las transacciones corresponden a fraude.
 
-Ambos archivos vienen incluidos en este repositorio dentro de la carpeta local `ARCHIVOS CSV/`, lista para que puedas descargarlos junto con el resto del proyecto. Para ejecutar el notebook desde Google Colab, deberás subirlos a tu propio Google Drive (ver siguiente sección).
+> **Importante:** los archivos CSV no se incluyen directamente en este repositorio debido a las restricciones de tamaño de GitHub. Para ejecutar el proyecto, debes descargarlos manualmente desde Kaggle y colocarlos en la carpeta local `ARCHIVOS CSV/` siguiendo la estructura indicada más abajo.
 
 **Fuente original del dataset:** https://www.kaggle.com/c/ieee-fraud-detection
 
 ---
 
-## Estructura del proyecto (descarga local)
+## Estructura esperada del proyecto
 
 ```
 Proyecto_deteccion_de_fraude/
 ├── README.md                                  # Este archivo
-├── ARCHIVOS CSV/                              # Datasets para descarga local
-│   ├── train_identity.csv                     # Dataset complementario de identidad
-│   └── train_transaction.csv                  # Dataset principal con la variable objetivo
+├── ARCHIVOS CSV/                              # (no incluida en el repo — crear manualmente)
+│   ├── train_identity.csv                     # Descargar desde Kaggle
+│   └── train_transaction.csv                  # Descargar desde Kaggle
 ├── VERSION_FINAL_DETECCION_DE_FRAUDE.ipynb    # Notebook principal (Google Colab)
 └── version_final_deteccion_de_fraude.py       # Versión exportada como script Python
 ```
 
-> La carpeta `ARCHIVOS CSV/` está pensada únicamente para que los archivos viajen junto al proyecto al descargarlo. Para ejecutar el notebook en Google Colab los CSV deben subirse luego a Google Drive en la ubicación esperada por el código (ver instrucciones más abajo).
+> La carpeta `ARCHIVOS CSV/` y los dos archivos `.csv` no están versionados en este repositorio debido a las restricciones de tamaño de GitHub. Una vez clonado el repositorio, debes crear esa carpeta localmente y colocar dentro los dos datasets descargados desde la fuente oficial de Kaggle. Para ejecutar el notebook en Google Colab los CSV deben subirse además a Google Drive en la ubicación esperada por el código (ver instrucciones más abajo).
 
 ---
 
@@ -54,9 +54,9 @@ El código está preparado para correr en **Google Colab**. Se ofrece también c
 
 ### Opción A — Google Colab (recomendada)
 
-**1.** Descarga este repositorio a tu computador. Dentro encontrarás la carpeta `ARCHIVOS CSV/` con los dos datasets.
+**1.** Descarga o clona este repositorio en tu computador y descarga por separado los dos datasets desde la fuente oficial de Kaggle.
 
-**2.** Sube los dos CSV a tu **Google Drive** dentro de una carpeta llamada exactamente `Archivos_CSV_Deteccion_Fraude` en la raíz de tu Drive:
+**2.** Crea una carpeta llamada `Archivos_CSV_Deteccion_Fraude` en la raíz de tu Google Drive y sube allí los archivos:
 
 ```
 MyDrive/
@@ -84,7 +84,7 @@ pandas
 scikit-learn
 ```
 
-Modifica la constante `CARPETA` para que apunte a la ruta local de la subcarpeta `ARCHIVOS CSV`, comenta las líneas de montaje de Google Drive y ejecuta:
+Modifica la constante `CARPETA` para que apunte a la ruta local donde hayas guardado los CSV descargados, comenta las líneas de montaje de Google Drive y ejecuta:
 
 ```bash
 python version_final_deteccion_de_fraude.py
@@ -95,19 +95,21 @@ python version_final_deteccion_de_fraude.py
 ## Pipeline implementado
 
 ```
-1.  Carga e integración (LEFT JOIN sobre TransactionID)
+1.  Carga de train_transaction
 2.  Optimización de tipos de datos
 3.  Ordenamiento temporal por TransactionDT
 4.  Partición temporal 80/20 (train / test)
 5.  Submuestreo estratificado del train (100,000 filas)
-6.  Eliminación de columnas con >90% de nulos
-7.  Filtro de correlación (>0.90) sobre numéricas
-8.  Imputación (mediana / "Missing")
-9.  Codificación categórica (one-hot + frequency encoding)
-10. División en rama manual (escalada) y rama referencial
-11. Validación temporal interna (subtrain / val)
-12. Entrenamiento de los 4 modelos
-13. Evaluación con 6 métricas
+6.  Carga de train_identity
+7.  Integración mediante LEFT JOIN sobre TransactionID
+8.  Eliminación de columnas con >90% de nulos
+9.  Filtro de correlación (>0.90) sobre numéricas
+10. Imputación (mediana / "Missing")
+11. Codificación categórica (one-hot + frequency encoding)
+12. División en rama manual (escalada) y rama referencial
+13. Validación temporal interna (subtrain / val)
+14. Entrenamiento de los 4 modelos
+15. Evaluación con 6 métricas
 ```
 
 ---
