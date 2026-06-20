@@ -1,136 +1,73 @@
-# Detección de Fraude en Transacciones en Línea
+# Optimización Numérica y Modelos de Ensamble para la Detección de Fraude Financiero
 
-Proyecto académico de **Métodos Numéricos** — Universidad Peruana Cayetano Heredia.
-Comparación experimental de cuatro algoritmos de aprendizaje supervisado aplicados a la detección de fraude en transacciones financieras digitales.
-
----
-
-## Sobre el proyecto
-
-Este repositorio contiene la implementación práctica de un análisis comparativo entre **Regresión Logística**, **K-Nearest Neighbors (KNN)**, **Árbol de Decisión** y **Random Forest** sobre un escenario realista de fraude en línea con desbalance severo de clases (~3.5% de transacciones fraudulentas).
-
-Los dos primeros modelos están implementados **manualmente desde cero** usando únicamente NumPy, aplicando los principios de optimización vistos en el curso (gradiente descendente, distancia euclidiana, optimización convexa). Los dos últimos se incorporan como **rama referencial externa** mediante `scikit-learn`, sirviendo como punto de comparación contra implementaciones estándar de la industria.
-
-El informe metodológico completo, hipótesis, marco teórico y discusión de resultados se entregan como documento aparte (PDF).
+Proyecto académico de **Métodos Numéricos** — Universidad Peruana Cayetano Heredia.  
+Análisis comparativo de alta capacidad y optimización del umbral crítico sobre un escenario masivo y desbalanceado.
 
 ---
 
-## Dataset
+## Sobre el Proyecto
 
-Se utilizó el dataset **IEEE-CIS Fraud Detection** publicado por Vesta Corporation en Kaggle (2019), compuesto por dos archivos relacionales:
+Este proyecto aborda el problema de la detección de fraudes en transacciones financieras digitales utilizando el dataset masivo **IEEE-CIS Fraud Detection**. El núcleo metodológico de la investigación se centra en resolver el colapso de los modelos lineales tradicionales ante desbalances críticos mediante dos estrategias de la ingeniería de datos y métodos numéricos:
 
-| Archivo | Filas | Columnas | Descripción |
-|---|---|---|---|
-| `train_transaction.csv` | 590,540 | 394 | Información de cada transacción (monto, tarjeta, dirección, conteos, deltas temporales y features anonimizadas V1–V339) |
-| `train_identity.csv` | 144,233 | 41 | Información de identidad digital del comprador (dispositivo, navegador, conexión) |
+1. **Suavizado Geométrico de Fronteras de Decisión:** Uso de Técnicas de Remuestreo Sintético (SMOTE) para balancear la carga informativa en el espacio de entrenamiento.
+2. **Optimización Numérica Unidimensional No Restringida:** Formulación y programación de un algoritmo iterativo de búsqueda lineal para encontrar el umbral de decisión óptimo ($t^*$) que maximiza la función objetivo del negocio ($F_1\text{-score}$ y $MCC$).
 
-La variable objetivo es `isFraud` (binaria). El dataset original presenta un desbalance severo: solo el **3.50%** de las transacciones corresponden a fraude.
-
-> **Importante:** los archivos CSV no se incluyen directamente en este repositorio debido a las restricciones de tamaño de GitHub. Para ejecutar el proyecto, debes descargarlos manualmente desde Kaggle y colocarlos en la carpeta local `ARCHIVOS CSV/` siguiendo la estructura indicada más abajo.
-
-**Fuente original del dataset:** https://www.kaggle.com/c/ieee-fraud-detection
+Se contrastan modelos base de la industria contra estructuras de ensamble por *Bagging* (**Random Forest de Alta Capacidad**) y *Gradient Boosting* (**XGBoost**), demostrando de forma matemática cómo se comporta el *trade-off* dinámico entre *Precision* y *Recall*.
 
 ---
 
-## Estructura esperada del proyecto
+## El Dataset y Gestión de Memoria (RAM)
 
-```
-Proyecto_deteccion_de_fraude/
-├── README.md                                  # Este archivo
-├── ARCHIVOS CSV/                              # (no incluida en el repo — crear manualmente)
-│   ├── train_identity.csv                     # Descargar desde Kaggle
-│   └── train_transaction.csv                  # Descargar desde Kaggle
-├── VERSION_FINAL_DETECCION_DE_FRAUDE.ipynb    # Notebook principal (Google Colab)
-└── version_final_deteccion_de_fraude.py       # Versión exportada como script Python
-```
+Se utilizó el dataset relacional **IEEE-CIS Fraud Detection** (Vesta Corporation / Kaggle), compuesto por:
+* `train_transaction.csv`: 590,540 filas y 394 columnas.
+* `train_identity.csv`: 144,233 filas y 41 columnas.
 
-> La carpeta `ARCHIVOS CSV/` y los dos archivos `.csv` no están versionados en este repositorio debido a las restricciones de tamaño de GitHub. Una vez clonado el repositorio, debes crear esa carpeta localmente y colocar dentro los dos datasets descargados desde la fuente oficial de Kaggle. Para ejecutar el notebook en Google Colab los CSV deben subirse además a Google Drive en la ubicación esperada por el código (ver instrucciones más abajo).
+### Reto del Desbalance y Cuidado de la RAM
+* **Desbalance Crítico:** La variable objetivo `isFraud` presenta un desbalance severo donde solo el **3.50%** de las transacciones son fraudulentas.
+* **Optimización Computacional:** Para evitar el desbordamiento de memoria en Colab Pro debido a las 425 columnas resultantes del `LEFT JOIN`, se ejecutó una limpieza estricta (eliminación de columnas con $>90\%$ de nulos), downcasting de tipos numéricos a `float32` y codificación categórica eficiente mediante *Frequency Encoding*.
 
 ---
 
-## Cómo ejecutar el proyecto
+##  Pipeline de Ejecución (Estructura del Notebook)
 
-El código está preparado para correr en **Google Colab**. Se ofrece también como script `.py` por si se desea ejecutar en un entorno local con Python.
+El flujo de trabajo en el archivo `VERSION_FINAL_DETECCION_DE_FRAUDE.ipynb` está estructurado en las siguientes etapas limpias:
 
-### Opción A — Google Colab (recomendada)
-
-**1.** Descarga o clona este repositorio en tu computador y descarga por separado los dos datasets desde la fuente oficial de Kaggle.
-
-**2.** Crea una carpeta llamada `Archivos_CSV_Deteccion_Fraude` en la raíz de tu Google Drive y sube allí los archivos:
-
-```
-MyDrive/
-└── Archivos_CSV_Deteccion_Fraude/
-    ├── train_identity.csv
-    └── train_transaction.csv
-```
-
-Esta es la ruta que el notebook espera por defecto. Si prefieres otra ubicación, modifica la constante `CARPETA` en la celda de configuración inicial.
-
-**3.** Sube el notebook `VERSION_FINAL_DETECCION_DE_FRAUDE.ipynb` a Colab (o ábrelo desde Drive con clic derecho → *Abrir con* → *Google Colaboratory*).
-
-**4.** Ejecuta todo en orden con *Runtime → Run all*. La primera celda monta tu Google Drive y solicitará autenticación.
-
-**Tiempo estimado de ejecución:** 5–7 minutos en Colab Free.
-
-### Opción B — Entorno local con Python
-
-Si prefieres correr el script `.py` localmente, asegúrate de tener instalado:
-
-```
-python >= 3.10
-numpy
-pandas
-scikit-learn
-```
-
-Modifica la constante `CARPETA` para que apunte a la ruta local donde hayas guardado los CSV descargados, comenta las líneas de montaje de Google Drive y ejecuta:
-
-```bash
-python version_final_deteccion_de_fraude.py
-```
+* **ETAPA 1:** Carga, Integración Relacional y Reducción Eficiente de Memoria (RAM).
+* **ETAPA 2:** Partición Temporal Estricta (80% pasado para entrenamiento, 20% futuro para evaluación), evitando la fuga de datos (*Data Leakage*).
+* **ETAPA 3:** Ingeniería de Características y *Frequency Encoding*.
+* **ETAPA 4:** Balanceo del Espacio de Características mediante SMOTE Ligero.
+* **ETAPA 5:** Evaluación de Modelos Base e Inestabilidad Lineal (Análisis del colapso del Gradiente Descendente SAGA en Regresión Logística).
+* **ETAPA 6:** Modelos de Ensamble y Optimización Numérica del Umbral ($t^*$).
+* **ETAPA 7:** Análisis de Sensibilidad Multiumbral y Modelos Avanzados (XGBoost).
 
 ---
 
-## Pipeline implementado
+##  Resultados Finales Actualizados
 
-```
-1.  Carga de train_transaction
-2.  Optimización de tipos de datos
-3.  Ordenamiento temporal por TransactionDT
-4.  Partición temporal 80/20 (train / test)
-5.  Submuestreo estratificado del train (100,000 filas)
-6.  Carga de train_identity
-7.  Integración mediante LEFT JOIN sobre TransactionID
-8.  Eliminación de columnas con >90% de nulos
-9.  Filtro de correlación (>0.90) sobre numéricas
-10. Imputación (mediana / "Missing")
-11. Codificación categórica (one-hot + frequency encoding)
-12. División en rama manual (escalada) y rama referencial
-13. Validación temporal interna (subtrain / val)
-14. Entrenamiento de los 4 modelos
-15. Evaluación con 6 métricas
-```
+Tras someter los modelos al pipeline optimizado y al algoritmo de búsqueda de umbral, los resultados finales consolidados en la **Etapa 7** son:
+
+| Modelo / Enfoque | Precision | Recall | F1-Score | MCC | AUC |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Logistic Regression** (SAGA) | 0.0000 | 0.0000 | 0.0000 | -0.0192 | 0.4813 |
+| **KNN** (BallTree) | 0.3780 | 0.0763 | 0.1269 | 0.1576 | 0.6452 |
+| **Decision Tree** | 0.4076 | 0.2562 | 0.3146 | 0.3044 | 0.7341 |
+| **Random Forest** (Base $t=0.50$) | **0.8473** | 0.2485 | 0.3843 | 0.4503 | 0.8594 |
+| **Random Forest** (Optimizado $t^*=0.38$) | 0.6886 | 0.3819 | 0.4913 | 0.5006 | 0.8949 |
+| **XGBoost** (Optimizado $t^*=0.27$) | 0.6495 | **0.4865** | **0.5563** | **0.5488** | **0.9174** |
+
+### 🔬 Conclusiones Clave del Análisis de Sensibilidad:
+1. **Colapso Lineal:** La Regresión Logística arroja métricas nulas debido a que la función de costo de entropía cruzada se vuelve plana ante el desbalance del 96.5%. El Gradiente Descendente converge a un mínimo global trivial (predecir siempre clase 0).
+2. **Ley del Intercambio (Trade-off):** Al evaluar umbrales propuestos ($t = 0.10, 0.20, 0.30$), se demostró experimentalmente que bajar el umbral maximiza el *Recall* (captura de fraudes) pero destruye la *Precision* debido al incremento exponencial de falsos positivos.
+3. **El Máximo Global Real:** **XGBoost con $t^* = 0.27$** se consolida como el modelo campeón absoluto. Al usar un enfoque iterativo secuencial (*Gradient Boosting*), optimiza el espacio métrico alcanzando un **AUC de 0.9174** y un **MCC de 0.5488**, el balance financiero ideal para la institución bancaria.
 
 ---
 
-## Modelos y configuración
+## 🛠️ Cómo Ejecutar en Google Colab
 
-| Modelo | Implementación | Tratamiento del desbalance |
-|---|---|---|
-| Regresión Logística | Manual (gradiente descendente + L2) | Cost-sensitive learning (pesos w₀, w₁) |
-| KNN | Manual (distancia euclidiana, predicción por chunks) | Selección de umbral |
-| Árbol de Decisión | scikit-learn (rama referencial) | `class_weight='balanced'` |
-| Random Forest | scikit-learn (rama referencial) | `class_weight='balanced'` |
-
-**Métricas calculadas (todas implementadas manualmente):**
-Precision, Recall, F1-score, MCC, AUC-ROC, AUPRC.
-
----
-
-## Reproducibilidad
-
-Todos los pasos que involucran aleatoriedad (submuestreo estratificado, partición interna, bootstrap de Random Forest) usan `random_state=42`. Ejecutar el notebook múltiples veces produce los mismos resultados.
+1. Descarga los archivos `train_transaction.csv` y `train_identity.csv` desde Kaggle.
+2. Súbelos a tu Google Drive en la ruta: `MyDrive/Archivos_CSV_Deteccion_Fraude/`.
+3. Abre el archivo `VERSION_FINAL_DETECCION_DE_FRAUDE.ipynb` en Google Colab.
+4. Selecciona un entorno de ejecución con alta prioridad de RAM (Colab Pro recomendado para acelerar el procesamiento paralelo con `n_jobs=-1`) y ejecuta todas las celdas en orden.
 
 ---
 
